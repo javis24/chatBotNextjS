@@ -1,0 +1,14 @@
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "Admin Agua",
+  "email": "admin@www.restonwater.com.mx",
+  "password": "123456",
+  "role": "admin"
+}
+
+
+
+####
+GET https://www.restonwater.com.mx/api/test-db
