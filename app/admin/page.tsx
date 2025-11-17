@@ -174,12 +174,13 @@ export default function AdminPage() {
           }
         };
 
-          const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: any) => {
   if (e.key === "Enter") {
     e.preventDefault();
     handleSendAdminMessage();
   }
 };
+
 
 
 
@@ -317,29 +318,34 @@ export default function AdminPage() {
         </div>
 
         {/* Caja de entrada (por ahora solo visual / disabled) */}
-        <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder={
-                selectedConv
-                  ? "Escribe para responder desde el admin…"
-                  : "Selecciona una conversación para escribir…"
-              }
-              className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
-              value={adminText}
-              onChange={(e) => setAdminText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={!selectedConv || sending}
-            />
-          </div>
-          <button
-            disabled
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-sky-500 text-white text-lg opacity-60 cursor-not-allowed"
-          >
-            ➤
-          </button>
-        </footer>
+       <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder={
+                  selectedConv
+                    ? "Escribe para responder desde el admin…"
+                    : "Selecciona una conversación para escribir…"
+                }
+                className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
+                value={adminText}
+                onChange={(e) => setAdminText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!selectedConv || sending}
+              />
+            </div>
+            <button
+              onClick={handleSendAdminMessage}
+              disabled={!selectedConv || sending || !adminText.trim()}
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${
+                !selectedConv || sending || !adminText.trim()
+                  ? "bg-sky-300 text-white opacity-60 cursor-not-allowed"
+                  : "bg-sky-500 text-white hover:bg-sky-600"
+              }`}
+            >
+              ➤
+            </button>
+          </footer>
       </section>
 
       {/* COLUMNA DERECHA: CHATS RECIENTES */}
