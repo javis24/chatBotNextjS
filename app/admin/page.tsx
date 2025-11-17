@@ -61,6 +61,10 @@ export default function AdminPage() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [search, setSearch] = useState("");
 
+  const [adminText, setAdminText] = useState("");
+  const [sending, setSending] = useState(false);
+
+
   // Cargar conversaciones al entrar
   useEffect(() => {
     const fetchConversations = async () => {
@@ -128,6 +132,56 @@ export default function AdminPage() {
       setLoadingMessages(false);
     }
   };
+
+    const handleSendAdminMessage = async () => {
+          if (!selectedConv) return;
+          if (!adminText.trim()) return;
+
+          try {
+            setSending(true);
+
+            const payload = {
+              conversationId: selectedConv.id,
+              text: adminText.trim(),
+            };
+
+            const res = await fetch("/api/admin/messages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+              console.error("Error al enviar mensaje desde admin");
+              return;
+            }
+
+            // Agregamos el mensaje al chat localmente para verlo al instante
+            const newMessage: Message = {
+              id: Date.now(), // id temporal (no importa para la vista)
+              conversation_id: selectedConv.id,
+              sender: "admin",
+              text: adminText.trim(),
+              created_at: new Date().toISOString(),
+            };
+
+            setMessages((prev) => [...prev, newMessage]);
+            setAdminText("");
+          } catch (error) {
+            console.error("Error handleSendAdminMessage:", error);
+          } finally {
+            setSending(false);
+          }
+        };
+
+          const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    handleSendAdminMessage();
+  }
+};
+
+
 
   // Filtrar lista de chats por búsqueda
   const filteredConversations = useMemo(() => {
@@ -267,9 +321,16 @@ export default function AdminPage() {
           <div className="flex-1">
             <input
               type="text"
-              disabled
-              placeholder="(Solo lectura por ahora) Escribe para responder desde el admin…"
-              className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-500"
+              placeholder={
+                selectedConv
+                  ? "Escribe para responder desde el admin…"
+                  : "Selecciona una conversación para escribir…"
+              }
+              className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
+              value={adminText}
+              onChange={(e) => setAdminText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={!selectedConv || sending}
             />
           </div>
           <button
