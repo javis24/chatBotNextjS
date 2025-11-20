@@ -4,11 +4,10 @@ import pool from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> } 
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params;       
-    const convId = Number(id);
+    const convId = Number(params.id);
 
     if (!convId || Number.isNaN(convId)) {
       return NextResponse.json(
@@ -17,7 +16,7 @@ export async function GET(
       );
     }
 
-    const [rows] = await pool.query(
+    const [rows] = await pool.query<any[]>(
       `
       SELECT
         id,

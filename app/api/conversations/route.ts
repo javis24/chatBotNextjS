@@ -1,30 +1,35 @@
-// app/api/messages/route.ts
-import { NextResponse } from "next/server";
+// app/api/conversations/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 
-export async function POST(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { conversationId, text } = await req.json();
+    const [rows] = await pool.query<any[]>(`
+      SELECT 
+        c.id,
+        c.visitor_id,
+        c.city,
+        c.status,
+        c.stage,
+        c.postal_code,
+        c.lead_json,
+        MAX(m.created_at) AS last_message_at,
+        SUBSTRING_INDEX(
+          GROUP_CONCAT(m.text ORDER BY m.created_at DESC SEPARATOR '||'),
+          '||',
+          1
+        ) AS last_message
+      FROM conversations c
+      LEFT JOIN messages m ON m.conversation_id = c.id
+      GROUP BY c.id
+      ORDER BY last_message_at DESC, c.created_at DESC
+    `);
 
-    if (!conversationId || !text || !text.trim()) {
-      return NextResponse.json(
-        { message: "conversationId y text son requeridos" },
-        { status: 400 }
-      );
-    }
-
-    await pool.query(
-      "INSERT INTO messages (conversation_id, sender, text) VALUES (?, 'admin', ?)",
-      [conversationId, text.trim()]
-    );
-
-    return NextResponse.json({
-      message: "Mensaje enviado correctamente",
-    });
+    return NextResponse.json(rows);
   } catch (error) {
-    console.error("Error POST /api/messages:", error);
+    console.error("Error en GET /api/conversations:", error);
     return NextResponse.json(
-      { message: "Error al enviar el mensaje" },
+      { error: "Error al obtener conversaciones" },
       { status: 500 }
     );
   }
