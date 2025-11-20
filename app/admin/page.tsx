@@ -64,25 +64,25 @@ export default function AdminPage() {
   const [adminText, setAdminText] = useState("");
   const [sending, setSending] = useState(false);
 
-
-  // Cargar conversaciones al entrar
+  // ---------- CARGAR CONVERSACIONES ----------
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         setLoadingConvs(true);
         const res = await fetch("/api/conversations");
-          const data = await res.json();
-          const list: Conversation[] = Array.isArray(data)
-            ? data
-            : Array.isArray(data?.conversations)
-            ? data.conversations
-            : [];
+        const data = await res.json();
 
-          setConversations(list);
+        const list: Conversation[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.conversations)
+          ? data.conversations
+          : [];
 
+        setConversations(list);
 
-        if (data.length > 0) {
-          handleSelectConversation(data[0], data[0].id, false);
+        if (list.length > 0) {
+          // cargar mensajes de la primera conversación
+          handleSelectConversation(list[0], list[0].id, false);
         }
       } catch (error) {
         console.error("Error al obtener conversaciones:", error);
@@ -94,7 +94,34 @@ export default function AdminPage() {
     fetchConversations();
   }, []);
 
-  // Función para parsear lead_json
+  // ---------- SELECCIONAR CONVERSACIÓN Y CARGAR MENSAJES ----------
+  const handleSelectConversation = async (
+    conv: Conversation,
+    convId?: number,
+    forceReload: boolean = true
+  ) => {
+    setSelectedConv(conv);
+
+    try {
+      setLoadingMessages(true);
+      const res = await fetch(`/api/messages/${convId ?? conv.id}`);
+      const data = await res.json();
+
+      const list: Message[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.messages)
+        ? data.messages
+        : [];
+
+      setMessages(list);
+    } catch (error) {
+      console.error("Error al obtener mensajes:", error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  // ---------- PARSEAR LEAD JSON ----------
   function parseLead(conv: Conversation | null) {
     if (!conv || !conv.lead_json) return null;
     try {
@@ -112,94 +139,63 @@ export default function AdminPage() {
     return selectedConv ? `Visitor ${selectedConv.visitor_id}` : "";
   }, [leadData, selectedConv]);
 
-  // WhatsApp del lead (si lo guardaste como leadData.whatsapp)
+  // WhatsApp del lead
   const whatsappNumber = useMemo(() => {
     if (leadData?.whatsapp) return leadData.whatsapp as string;
     return null;
   }, [leadData]);
 
-  // Manejar selección de conversación
-  const handleSelectConversation = async (
-    conv: Conversation,
-    convId?: number,
-    forceReload: boolean = true
-  ) => {
-    setSelectedConv(conv);
-    if (!forceReload) {
-      // primera vez desde el load
-    }
+  // ---------- ENVIAR MENSAJE DESDE ADMIN ----------
+  const handleSendAdminMessage = async () => {
+    if (!selectedConv) return;
+    if (!adminText.trim()) return;
+
     try {
-      setLoadingMessages(true);
-      const res = await fetch(`/api/messages/${convId ?? conv.id}`);
-        const data = await res.json();
+      setSending(true);
 
-        const list: Message[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.messages)
-          ? data.messages
-          : [];
+      const payload = {
+        conversationId: selectedConv.id,
+        text: adminText.trim(),
+      };
 
-        setMessages(list);
+      // ⬅️ OJO: aquí usamos /api/messages porque ahí está tu POST
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
+      if (!res.ok) {
+        console.error("Error al enviar mensaje desde admin");
+        return;
+      }
+
+      // Agregamos el mensaje localmente
+      const newMessage: Message = {
+        id: Date.now(),
+        conversation_id: selectedConv.id,
+        sender: "admin",
+        text: adminText.trim(),
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, newMessage]);
+      setAdminText("");
     } catch (error) {
-      console.error("Error al obtener mensajes:", error);
+      console.error("Error handleSendAdminMessage:", error);
     } finally {
-      setLoadingMessages(false);
+      setSending(false);
     }
   };
 
-    const handleSendAdminMessage = async () => {
-          if (!selectedConv) return;
-          if (!adminText.trim()) return;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSendAdminMessage();
+    }
+  };
 
-          try {
-            setSending(true);
-
-            const payload = {
-              conversationId: selectedConv.id,
-              text: adminText.trim(),
-            };
-
-            const res = await fetch("/api/admin/messages", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) {
-              console.error("Error al enviar mensaje desde admin");
-              return;
-            }
-
-            // Agregamos el mensaje al chat localmente para verlo al instante
-            const newMessage: Message = {
-              id: Date.now(), // id temporal (no importa para la vista)
-              conversation_id: selectedConv.id,
-              sender: "admin",
-              text: adminText.trim(),
-              created_at: new Date().toISOString(),
-            };
-
-            setMessages((prev) => [...prev, newMessage]);
-            setAdminText("");
-          } catch (error) {
-            console.error("Error handleSendAdminMessage:", error);
-          } finally {
-            setSending(false);
-          }
-        };
-
-    const handleKeyDown = (e: any) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    handleSendAdminMessage();
-  }
-};
-
-
-
-
-  // Filtrar lista de chats por búsqueda
+  // ---------- FILTRO DE CONVERSACIONES ----------
   const filteredConversations = useMemo(() => {
     if (!search.trim()) return conversations;
     const t = search.toLowerCase();
@@ -223,12 +219,12 @@ export default function AdminPage() {
   // URL para abrir WhatsApp Web
   const whatsappLink = useMemo(() => {
     if (!whatsappNumber) return null;
-    // quitar espacios / caracteres raros
     const digits = String(whatsappNumber).replace(/[^\d]/g, "");
     if (!digits) return null;
     return `https://wa.me/${digits}`;
   }, [whatsappNumber]);
 
+  // ---------- JSX ----------
   return (
     <main className="min-h-screen bg-slate-100 flex">
       {/* SIDEBAR IZQUIERDO (MENÚ) */}
@@ -332,35 +328,35 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Caja de entrada (por ahora solo visual / disabled) */}
-       <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder={
-                  selectedConv
-                    ? "Escribe para responder desde el admin…"
-                    : "Selecciona una conversación para escribir…"
-                }
-                className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
-                value={adminText}
-                onChange={(e) => setAdminText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={!selectedConv || sending}
-              />
-            </div>
-            <button
-              onClick={handleSendAdminMessage}
-              disabled={!selectedConv || sending || !adminText.trim()}
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${
-                !selectedConv || sending || !adminText.trim()
-                  ? "bg-sky-300 text-white opacity-60 cursor-not-allowed"
-                  : "bg-sky-500 text-white hover:bg-sky-600"
-              }`}
-            >
-              ➤
-            </button>
-          </footer>
+        {/* Caja de entrada */}
+        <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder={
+                selectedConv
+                  ? "Escribe para responder desde el admin…"
+                  : "Selecciona una conversación para escribir…"
+              }
+              className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
+              value={adminText}
+              onChange={(e) => setAdminText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={!selectedConv || sending}
+            />
+          </div>
+          <button
+            onClick={handleSendAdminMessage}
+            disabled={!selectedConv || sending || !adminText.trim()}
+            className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${
+              !selectedConv || sending || !adminText.trim()
+                ? "bg-sky-300 text-white opacity-60 cursor-not-allowed"
+                : "bg-sky-500 text-white hover:bg-sky-600"
+            }`}
+          >
+            ➤
+          </button>
+        </footer>
       </section>
 
       {/* COLUMNA DERECHA: CHATS RECIENTES */}
@@ -447,8 +443,13 @@ export default function AdminPage() {
 // ============================================
 // COMPONENTES AUXILIARES
 // ============================================
-
-function SidebarItem({ label, active = false }: { label: string; active?: boolean }) {
+function SidebarItem({
+  label,
+  active = false,
+}: {
+  label: string;
+  active?: boolean;
+}) {
   return (
     <div
       className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-[13px] ${
@@ -474,7 +475,8 @@ function MessageBubble({ message }: { message: Message }) {
 
   let bubbleClass =
     "max-w-[80%] rounded-lg px-3 py-2 text-[12px] shadow-sm whitespace-pre-line";
-  if (isVisitor) bubbleClass += " bg-white text-slate-900 border border-slate-200";
+  if (isVisitor)
+    bubbleClass += " bg-white text-slate-900 border border-slate-200";
   if (isBot) bubbleClass += " bg-sky-600 text-white";
   if (isAdmin) bubbleClass += " bg-amber-100 text-amber-900";
 
