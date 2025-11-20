@@ -71,8 +71,15 @@ export default function AdminPage() {
       try {
         setLoadingConvs(true);
         const res = await fetch("/api/conversations");
-        const data = await res.json();
-        setConversations(data);
+          const data = await res.json();
+          const list: Conversation[] = Array.isArray(data)
+            ? data
+            : Array.isArray(data?.conversations)
+            ? data.conversations
+            : [];
+
+          setConversations(list);
+
 
         if (data.length > 0) {
           handleSelectConversation(data[0], data[0].id, false);
@@ -124,8 +131,16 @@ export default function AdminPage() {
     try {
       setLoadingMessages(true);
       const res = await fetch(`/api/messages/${convId ?? conv.id}`);
-      const data = await res.json();
-      setMessages(data);
+        const data = await res.json();
+
+        const list: Message[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.messages)
+          ? data.messages
+          : [];
+
+        setMessages(list);
+
     } catch (error) {
       console.error("Error al obtener mensajes:", error);
     } finally {
