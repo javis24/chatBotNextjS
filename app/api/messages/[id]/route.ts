@@ -1,13 +1,14 @@
 // app/api/messages/[id]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> } 
 ) {
   try {
-    const convId = Number(params.id);
+    const { id } = await context.params;       
+    const convId = Number(id);
 
     if (!convId || Number.isNaN(convId)) {
       return NextResponse.json(
@@ -31,7 +32,6 @@ export async function GET(
       [convId]
     );
 
-    // rows es un array de mensajes
     return NextResponse.json(rows);
   } catch (error) {
     console.error("Error en GET /api/messages/[id]:", error);

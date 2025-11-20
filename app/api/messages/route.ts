@@ -1,8 +1,8 @@
-// app/api/admin/messages/route.js
-import { NextResponse } from "next/server";
+// app/api/messages/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
     const { conversationId, text } = await req.json();
 
@@ -13,7 +13,6 @@ export async function POST(req) {
       );
     }
 
-    // Guardamos el mensaje como 'admin'
     await pool.query(
       "INSERT INTO messages (conversation_id, sender, text) VALUES (?, 'admin', ?)",
       [conversationId, text.trim()]
@@ -23,7 +22,7 @@ export async function POST(req) {
       message: "Mensaje enviado correctamente",
     });
   } catch (error) {
-    console.error("Error POST /api/admin/messages:", error);
+    console.error("Error POST /api/messages:", error);
     return NextResponse.json(
       { message: "Error al enviar el mensaje" },
       { status: 500 }
