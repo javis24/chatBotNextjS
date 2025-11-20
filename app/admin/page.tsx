@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 
-// TIPOS PARA LOS DATOS
+// TIPOS
 type Conversation = {
   id: number;
   visitor_id: string;
@@ -64,12 +64,17 @@ export default function AdminPage() {
   const [adminText, setAdminText] = useState("");
   const [sending, setSending] = useState(false);
 
-  // ---------- CARGAR CONVERSACIONES ----------
+  // Cargar conversaciones al entrar
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         setLoadingConvs(true);
         const res = await fetch("/api/conversations");
+        if (!res.ok) {
+          console.error("Error HTTP /api/conversations:", res.status);
+          return;
+        }
+
         const data = await res.json();
 
         const list: Conversation[] = Array.isArray(data)
@@ -80,8 +85,8 @@ export default function AdminPage() {
 
         setConversations(list);
 
+        // seleccionar la primera conversación si existe
         if (list.length > 0) {
-          // cargar mensajes de la primera conversación
           handleSelectConversation(list[0], list[0].id, false);
         }
       } catch (error) {
@@ -94,34 +99,7 @@ export default function AdminPage() {
     fetchConversations();
   }, []);
 
-  // ---------- SELECCIONAR CONVERSACIÓN Y CARGAR MENSAJES ----------
-  const handleSelectConversation = async (
-    conv: Conversation,
-    convId?: number,
-    forceReload: boolean = true
-  ) => {
-    setSelectedConv(conv);
-
-    try {
-      setLoadingMessages(true);
-      const res = await fetch(`/api/messages/${convId ?? conv.id}`);
-      const data = await res.json();
-
-      const list: Message[] = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.messages)
-        ? data.messages
-        : [];
-
-      setMessages(list);
-    } catch (error) {
-      console.error("Error al obtener mensajes:", error);
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
-
-  // ---------- PARSEAR LEAD JSON ----------
+  // Función para parsear lead_json
   function parseLead(conv: Conversation | null) {
     if (!conv || !conv.lead_json) return null;
     try {
@@ -133,19 +111,55 @@ export default function AdminPage() {
 
   const leadData = useMemo(() => parseLead(selectedConv), [selectedConv]);
 
-  // Nombre para mostrar en la cabecera del chat
   const displayName = useMemo(() => {
     if (leadData?.name) return leadData.name as string;
     return selectedConv ? `Visitor ${selectedConv.visitor_id}` : "";
   }, [leadData, selectedConv]);
 
-  // WhatsApp del lead
   const whatsappNumber = useMemo(() => {
     if (leadData?.whatsapp) return leadData.whatsapp as string;
     return null;
   }, [leadData]);
 
-  // ---------- ENVIAR MENSAJE DESDE ADMIN ----------
+  // Cargar mensajes de una conversación
+  const handleSelectConversation = async (
+    conv: Conversation,
+    convId?: number,
+    forceReload: boolean = true
+  ) => {
+    setSelectedConv(conv);
+
+    try {
+      setLoadingMessages(true);
+      const res = await fetch(`/api/messages/${convId ?? conv.id}`);
+      if (!res.ok) {
+        console.error(
+          "Error HTTP /api/messages/[id]:",
+          res.status,
+          await res.text()
+        );
+        setMessages([]);
+        return;
+      }
+
+      const data = await res.json();
+
+      const list: Message[] = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.messages)
+        ? data.messages
+        : [];
+
+      setMessages(list);
+    } catch (error) {
+      console.error("Error al obtener mensajes:", error);
+      setMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  // Enviar mensaje desde admin
   const handleSendAdminMessage = async () => {
     if (!selectedConv) return;
     if (!adminText.trim()) return;
@@ -158,7 +172,6 @@ export default function AdminPage() {
         text: adminText.trim(),
       };
 
-      // ⬅️ OJO: aquí usamos /api/messages porque ahí está tu POST
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -166,11 +179,10 @@ export default function AdminPage() {
       });
 
       if (!res.ok) {
-        console.error("Error al enviar mensaje desde admin");
+        console.error("Error al enviar mensaje desde admin", res.status);
         return;
       }
 
-      // Agregamos el mensaje localmente
       const newMessage: Message = {
         id: Date.now(),
         conversation_id: selectedConv.id,
@@ -195,7 +207,7 @@ export default function AdminPage() {
     }
   };
 
-  // ---------- FILTRO DE CONVERSACIONES ----------
+  // Filtrar lista de chats por búsqueda
   const filteredConversations = useMemo(() => {
     if (!search.trim()) return conversations;
     const t = search.toLowerCase();
@@ -216,7 +228,6 @@ export default function AdminPage() {
     });
   }, [conversations, search]);
 
-  // URL para abrir WhatsApp Web
   const whatsappLink = useMemo(() => {
     if (!whatsappNumber) return null;
     const digits = String(whatsappNumber).replace(/[^\d]/g, "");
@@ -224,10 +235,10 @@ export default function AdminPage() {
     return `https://wa.me/${digits}`;
   }, [whatsappNumber]);
 
-  // ---------- JSX ----------
+  // ================= RENDER =================
   return (
     <main className="min-h-screen bg-slate-100 flex">
-      {/* SIDEBAR IZQUIERDO (MENÚ) */}
+      {/* SIDEBAR IZQUIERDO */}
       <aside className="w-60 bg-slate-900 text-slate-100 flex flex-col">
         <div className="px-4 py-4 border-b border-slate-800">
           <h1 className="text-sm font-semibold">Reston Water – Admin</h1>
@@ -255,7 +266,7 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* COLUMNA CENTRAL: CHAT ABIERTO */}
+      {/* COLUMNA CENTRAL: CHAT */}
       <section className="flex-1 flex flex-col border-x border-slate-200 bg-slate-50">
         {/* Header del chat */}
         <header className="h-14 flex items-center justify-between px-4 border-b border-slate-200 bg-slate-100">
@@ -359,9 +370,8 @@ export default function AdminPage() {
         </footer>
       </section>
 
-      {/* COLUMNA DERECHA: CHATS RECIENTES */}
+      {/* COLUMNA DERECHA: LISTA DE CHATS */}
       <aside className="w-80 flex flex-col bg-white">
-        {/* Buscador */}
         <div className="h-14 flex items-center px-3 border-b border-slate-200">
           <input
             type="text"
@@ -372,7 +382,6 @@ export default function AdminPage() {
           />
         </div>
 
-        {/* Lista de chats */}
         <div className="flex-1 overflow-y-auto">
           {loadingConvs && (
             <p className="text-[11px] text-slate-500 px-3 py-2">
@@ -475,8 +484,7 @@ function MessageBubble({ message }: { message: Message }) {
 
   let bubbleClass =
     "max-w-[80%] rounded-lg px-3 py-2 text-[12px] shadow-sm whitespace-pre-line";
-  if (isVisitor)
-    bubbleClass += " bg-white text-slate-900 border border-slate-200";
+  if (isVisitor) bubbleClass += " bg-white text-slate-900 border border-slate-200";
   if (isBot) bubbleClass += " bg-sky-600 text-white";
   if (isAdmin) bubbleClass += " bg-amber-100 text-amber-900";
 
