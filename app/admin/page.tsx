@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import AdminsPanel from "./AdminsPanel";
+import ContactsPanel from "./ContactsPanel";
 
 // TIPOS PARA LOS DATOS
 type Conversation = {
@@ -64,6 +66,10 @@ export default function AdminPage() {
   const [adminText, setAdminText] = useState("");
   const [sending, setSending] = useState(false);
 
+  const [activeTab, setActiveTab] = useState<"chat" | "admins" | "contacts">(
+    "chat"
+  );
+
   // ==============================
   // CARGAR CONVERSACIONES AL ENTRAR
   // ==============================
@@ -83,7 +89,6 @@ export default function AdminPage() {
         setConversations(list);
 
         if (list.length > 0) {
-          // seleccionamos la primera por defecto
           handleSelectConversation(list[0], list[0].id, false);
         }
       } catch (error) {
@@ -114,7 +119,7 @@ export default function AdminPage() {
     return selectedConv ? `Visitor ${selectedConv.visitor_id}` : "";
   }, [leadData, selectedConv]);
 
-  // WhatsApp del lead (si lo guardaste como leadData.whatsapp)
+  // WhatsApp del lead
   const whatsappNumber = useMemo(() => {
     if (leadData?.whatsapp) return leadData.whatsapp as string;
     return null;
@@ -159,7 +164,6 @@ export default function AdminPage() {
         text: adminText.trim(),
       };
 
-      // ⇩⇩⇩ IMPORTANTE: usamos /api/messages
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -236,13 +240,26 @@ export default function AdminPage() {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1 text-[13px]">
-          <SidebarItem label="Chat" active />
-          <SidebarItem label="Admins" />
+          <SidebarItem
+            label="Chat"
+            active={activeTab === "chat"}
+            onClick={() => setActiveTab("chat")}
+          />
+          <SidebarItem
+            label="Admins"
+            active={activeTab === "admins"}
+            onClick={() => setActiveTab("admins")}
+          />
+          <SidebarItem
+            label="Contactos"
+            active={activeTab === "contacts"}
+            onClick={() => setActiveTab("contacts")}
+          />
+          {/* resto sin funcionalidad por ahora */}
           <SidebarItem label="Archivos" />
           <SidebarItem label="API-WS" />
           <SidebarItem label="Mensajes" />
           <SidebarItem label="Bots" />
-          <SidebarItem label="Contactos" />
           <SidebarItem label="Categorías" />
           <SidebarItem label="Productos" />
           <SidebarItem label="Órdenes" />
@@ -254,187 +271,207 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* COLUMNA CENTRAL: CHAT ABIERTO */}
-      <section className="flex-1 flex flex-col border-x border-slate-200 bg-slate-50">
-        {/* Header del chat */}
-        <header className="h-14 flex items-center justify-between px-4 border-b border-slate-200 bg-slate-100">
-          {selectedConv ? (
-            <>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-semibold">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-semibold text-slate-900">
-                    {displayName}
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    #{selectedConv.id} ·{" "}
-                    {selectedConv.city || "Sin ciudad"} ·{" "}
-                    {selectedConv.postal_code || "Sin CP"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-[11px]">
-                <span
-                  className={`px-2 py-0.5 rounded-full border ${
-                    selectedConv.status === "open"
-                      ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                      : "bg-slate-100 border-slate-300 text-slate-700"
-                  }`}
-                >
-                  {STATUS_LABEL[selectedConv.status] || selectedConv.status}
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700">
-                  Etapa: {selectedConv.stage}
-                </span>
-                {whatsappLink && (
-                  <a
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500 text-white text-[11px] hover:bg-emerald-600"
-                  >
-                    🟢 Abrir WhatsApp
-                  </a>
-                )}
-              </div>
-            </>
-          ) : (
-            <span className="text-[13px] text-slate-500">
-              Selecciona una conversación en la columna derecha.
-            </span>
-          )}
-        </header>
-
-        {/* Área de mensajes */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 bg-[url('/whatsapp-bg.png')] bg-cover bg-center">
-          {loadingMessages && (
-            <p className="text-[11px] text-slate-500">Cargando mensajes…</p>
-          )}
-
-          {!loadingMessages && messages.length === 0 && selectedConv && (
-            <p className="text-[11px] text-slate-500">
-              Esta conversación aún no tiene mensajes.
-            </p>
-          )}
-
-          <div className="flex flex-col gap-2">
-            {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} />
-            ))}
-          </div>
-        </div>
-
-        {/* Caja de entrada */}
-        <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder={
-                selectedConv
-                  ? "Escribe para responder desde el admin…"
-                  : "Selecciona una conversación para escribir…"
-              }
-              className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
-              value={adminText}
-              onChange={(e) => setAdminText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={!selectedConv || sending}
-            />
-          </div>
-          <button
-            onClick={handleSendAdminMessage}
-            disabled={!selectedConv || sending || !adminText.trim()}
-            className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${
-              !selectedConv || sending || !adminText.trim()
-                ? "bg-sky-300 text-white opacity-60 cursor-not-allowed"
-                : "bg-sky-500 text-white hover:bg-sky-600"
-            }`}
-          >
-            ➤
-          </button>
-        </footer>
-      </section>
-
-      {/* COLUMNA DERECHA: CHATS RECIENTES */}
-      <aside className="w-80 flex flex-col bg-white">
-        {/* Buscador */}
-        <div className="h-14 flex items-center px-3 border-b border-slate-200">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, correo o CP…"
-            className="w-full text-[13px] px-3 py-1.5 rounded-full border border-slate-300 bg-slate-50"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {/* Lista de chats */}
-        <div className="flex-1 overflow-y-auto">
-          {loadingConvs && (
-            <p className="text-[11px] text-slate-500 px-3 py-2">
-              Cargando conversaciones…
-            </p>
-          )}
-
-          {!loadingConvs &&
-            filteredConversations.map((c) => {
-              const lead = parseLead(c);
-              const name = lead?.name || `Visitor ${c.visitor_id}`;
-              const preview =
-                c.last_message ||
-                (lead?.whatsapp
-                  ? `WhatsApp: ${lead.whatsapp}`
-                  : "Sin mensajes aún");
-              const isActive = selectedConv?.id === c.id;
-
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => handleSelectConversation(c)}
-                  className={`w-full flex flex-col items-stretch px-3 py-2 text-left border-b border-slate-100 text-[12px] hover:bg-slate-50 ${
-                    isActive ? "bg-sky-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-900 line-clamp-1">
-                      {name}
-                    </span>
-                    <span className="text-[10px] text-slate-500 ml-2">
-                      {c.last_message_at
-                        ? formatShortDate(c.last_message_at)
-                        : formatShortDate(c.created_at)}
-                    </span>
+      {/* CONTENIDO CENTRAL + DERECHA SEGÚN PESTAÑA */}
+      {activeTab === "chat" && (
+        <>
+          {/* COLUMNA CENTRAL: CHAT ABIERTO */}
+          <section className="flex-1 flex flex-col border-x border-slate-200 bg-slate-50">
+            {/* Header del chat */}
+            <header className="h-14 flex items-center justify-between px-4 border-b border-slate-200 bg-slate-100">
+              {selectedConv ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-semibold">
+                      {displayName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col leading-tight">
+                      <span className="text-sm font-semibold text-slate-900">
+                        {displayName}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        #{selectedConv.id} ·{" "}
+                        {selectedConv.city || "Sin ciudad"} ·{" "}
+                        {selectedConv.postal_code || "Sin CP"}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between mt-0.5">
-                    <span className="text-[11px] text-slate-600 line-clamp-1">
-                      {preview}
-                    </span>
+                  <div className="flex items-center gap-2 text-[11px]">
                     <span
-                      className={`ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] border ${
-                        c.status === "open"
+                      className={`px-2 py-0.5 rounded-full border ${
+                        selectedConv.status === "open"
                           ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                          : "bg-slate-50 border-slate-300 text-slate-500"
+                          : "bg-slate-100 border-slate-300 text-slate-700"
                       }`}
-                      title={STATUS_LABEL[c.status] || c.status}
                     >
-                      {c.status === "open" ? "●" : "✓"}
+                      {STATUS_LABEL[selectedConv.status] ||
+                        selectedConv.status}
                     </span>
+                    <span className="px-2 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700">
+                      Etapa: {selectedConv.stage}
+                    </span>
+                    {whatsappLink && (
+                      <a
+                        href={whatsappLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500 text-white text-[11px] hover:bg-emerald-600"
+                      >
+                        🟢 Abrir WhatsApp
+                      </a>
+                    )}
                   </div>
-                </button>
-              );
-            })}
+                </>
+              ) : (
+                <span className="text-[13px] text-slate-500">
+                  Selecciona una conversación en la columna derecha.
+                </span>
+              )}
+            </header>
 
-          {!loadingConvs && filteredConversations.length === 0 && (
-            <p className="text-[11px] text-slate-500 px-3 py-2">
-              No hay conversaciones.
-            </p>
-          )}
-        </div>
-      </aside>
+            {/* Área de mensajes */}
+            <div className="flex-1 overflow-y-auto px-4 py-3 bg-[url('/whatsapp-bg.png')] bg-cover bg-center">
+              {loadingMessages && (
+                <p className="text-[11px] text-slate-500">
+                  Cargando mensajes…
+                </p>
+              )}
+
+              {!loadingMessages && messages.length === 0 && selectedConv && (
+                <p className="text-[11px] text-slate-500">
+                  Esta conversación aún no tiene mensajes.
+                </p>
+              )}
+
+              <div className="flex flex-col gap-2">
+                {messages.map((m) => (
+                  <MessageBubble key={m.id} message={m} />
+                ))}
+              </div>
+            </div>
+
+            {/* Caja de entrada */}
+            <footer className="h-16 border-t border-slate-200 bg-slate-100 flex items-center px-4 gap-3">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder={
+                    selectedConv
+                      ? "Escribe para responder desde el admin…"
+                      : "Selecciona una conversación para escribir…"
+                  }
+                  className="w-full text-[13px] px-3 py-2 rounded-full border border-slate-300 bg-white text-slate-900"
+                  value={adminText}
+                  onChange={(e) => setAdminText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={!selectedConv || sending}
+                />
+              </div>
+              <button
+                onClick={handleSendAdminMessage}
+                disabled={!selectedConv || sending || !adminText.trim()}
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${
+                  !selectedConv || sending || !adminText.trim()
+                    ? "bg-sky-300 text-white opacity-60 cursor-not-allowed"
+                    : "bg-sky-500 text-white hover:bg-sky-600"
+                }`}
+              >
+                ➤
+              </button>
+            </footer>
+          </section>
+
+          {/* COLUMNA DERECHA: CHATS RECIENTES */}
+          <aside className="w-80 flex flex-col bg-white">
+            {/* Buscador */}
+            <div className="h-14 flex items-center px-3 border-b border-slate-200">
+              <input
+                type="text"
+                placeholder="Buscar por nombre, correo o CP…"
+                className="w-full text-[13px] px-3 py-1.5 rounded-full border border-slate-300 bg-slate-50"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Lista de chats */}
+            <div className="flex-1 overflow-y-auto">
+              {loadingConvs && (
+                <p className="text-[11px] text-slate-500 px-3 py-2">
+                  Cargando conversaciones…
+                </p>
+              )}
+
+              {!loadingConvs &&
+                filteredConversations.map((c) => {
+                  const lead = parseLead(c);
+                  const name = lead?.name || `Visitor ${c.visitor_id}`;
+                  const preview =
+                    c.last_message ||
+                    (lead?.whatsapp
+                      ? `WhatsApp: ${lead.whatsapp}`
+                      : "Sin mensajes aún");
+                  const isActive = selectedConv?.id === c.id;
+
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => handleSelectConversation(c)}
+                      className={`w-full flex flex-col items-stretch px-3 py-2 text-left border-b border-slate-100 text-[12px] hover:bg-slate-50 ${
+                        isActive ? "bg-sky-50" : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-slate-900 line-clamp-1">
+                          {name}
+                        </span>
+                        <span className="text-[10px] text-slate-500 ml-2">
+                          {c.last_message_at
+                            ? formatShortDate(c.last_message_at)
+                            : formatShortDate(c.created_at)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-0.5">
+                        <span className="text-[11px] text-slate-600 line-clamp-1">
+                          {preview}
+                        </span>
+                        <span
+                          className={`ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] border ${
+                            c.status === "open"
+                              ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                              : "bg-slate-50 border-slate-300 text-slate-500"
+                          }`}
+                          title={STATUS_LABEL[c.status] || c.status}
+                        >
+                          {c.status === "open" ? "●" : "✓"}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+
+              {!loadingConvs && filteredConversations.length === 0 && (
+                <p className="text-[11px] text-slate-500 px-3 py-2">
+                  No hay conversaciones.
+                </p>
+              )}
+            </div>
+          </aside>
+        </>
+      )}
+
+      {activeTab === "admins" && (
+        <section className="flex-1 flex flex-col border-l border-slate-200 bg-slate-50">
+          <AdminsPanel />
+        </section>
+      )}
+
+      {activeTab === "contacts" && (
+        <section className="flex-1 flex flex-col border-l border-slate-200 bg-slate-50">
+          <ContactsPanel />
+        </section>
+      )}
     </main>
   );
 }
@@ -446,13 +483,17 @@ export default function AdminPage() {
 function SidebarItem({
   label,
   active = false,
+  onClick,
 }: {
   label: string;
   active?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <div
-      className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-[13px] ${
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer text-[13px] text-left ${
         active
           ? "bg-slate-800 text-slate-50 font-semibold"
           : "text-slate-200 hover:bg-slate-800/60"
@@ -460,7 +501,7 @@ function SidebarItem({
     >
       <span>•</span>
       <span>{label}</span>
-    </div>
+    </button>
   );
 }
 
