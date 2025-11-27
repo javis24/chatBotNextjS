@@ -13,7 +13,7 @@ export default function HomePage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide opacity-80">
-                Agua purificada en tu hogar
+                YA NO CARGUES MAS GARRAFONES EN TU CASA 
               </p>
               <h1 className="text-lg font-semibold">Servicio de Filtros Monterrey & La Laguna</h1>
             </div>
@@ -33,38 +33,37 @@ export default function HomePage() {
           {/* Texto principal */}
           <div>
             <p className="inline-block px-3 py-1 mb-4 text-xs font-semibold rounded-full bg-white/15">
-              Sin garrafones · Sin plazos forzosos · Instalación incluida
+             YA NO CARGUES MAS GARRAFONES EN TU CASA 
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4">
-              La forma más simple de beber{" "}
-              <span className="text-cyan-200">agua purificada</span> en casa.
+              Purificamos el agua para beber {" "}
+              <span className="text-cyan-200">agua purificada</span> en tu hogar.
             </h2>
             <p className="text-sm md:text-base text-sky-100 mb-6">
-              Servicio de renta de purificador de agua por ósmosis inversa bajo tarja,
-              con mantenimiento incluido y técnicos especializados en{" "}
+              Servicio de purificación de agua por osmosis inversa bajo tarja, con mantenimiento incluido y técnicos profesionales. {" "} 
               <strong>Monterrey</strong> y la <strong>Comarca Lagunera</strong>.
             </p>
 
             {/* Plan y promo */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/20">
               <p className="text-xs uppercase tracking-wide mb-1 opacity-80">
-                Plan recomendado
+                PLAN RESTON WATER 2.0
               </p>
               <h3 className="font-semibold text-lg mb-2">
-                Sistema Ósmosis Inversa Smart S2-600
+                Sistema de Ósmosis inversa Reston Water 2.0
               </h3>
               <div className="flex flex-wrap items-baseline gap-3 mb-2">
                 <div>
                   <p className="text-xs opacity-80 line-through">
-                    Antes: $369 MXN/mes
+                    Antes: $490 MXN/mes
                   </p>
                   <p className="text-3xl font-extrabold leading-none">
-                    $239.<span className="text-xl align-top">85</span>
+                    $390.
                     <span className="text-xs font-normal ml-1">MXN/mes</span>
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-emerald-400/90 text-xs font-semibold text-slate-900">
-                  -35% primeros 8 meses
+                  INSTALACIÓN SIN COSTO, mantenimiento programado y servicio técnico permanente.
                 </span>
               </div>
               <p className="text-xs md:text-sm text-sky-50">
@@ -108,28 +107,25 @@ export default function HomePage() {
               <li className="flex gap-2">
                 <span className="mt-0.5">✅</span>
                 <span>
-                  <strong>Olvídate de los garrafones:</strong> agua purificada directa del
-                  grifo, al instante y las 24 horas.
+                  <strong>Ya no compres garrafones: </strong> agua purificada directa del grifo, al instante y las 24 horas.
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="mt-0.5">✅</span>
                 <span>
-                  <strong>Ahorro y comodidad:</strong> una cuota fija mensual que sustituye
-                  el gasto constante en agua embotellada.
+                  <strong>Gasta menos:</strong> un pago minimo mensual fijo.
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="mt-0.5">✅</span>
                 <span>
-                  <strong>Servicio integral:</strong> instalación gratis, cambios de cartucho
-                  programados y soporte técnico sin costo extra.
+                  <strong>Servicio:</strong> Instalación sin costo y mantenimiento sin costo extra
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="mt-0.5">📍</span>
                 <span>
-                  Cobertura actual en <strong>Monterrey</strong> y <strong>La Laguna</strong>.
+                  Coberturas: Zonas Metropolitanas <strong>Monterrey</strong> y <strong>La Laguna</strong>.
                   El asistente validará tu Código Postal.
                 </span>
               </li>
@@ -321,6 +317,143 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+            {/* FORMULARIO DE CONTACTO RÁPIDO */}
+      <section
+        id="contacto"
+        className="py-10 md:py-14 bg-sky-900 text-sky-50 border-t border-slate-200"
+      >
+        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-[1.3fr_1fr] gap-8 items-start">
+          {/* Texto lateral */}
+          <div>
+            <p className="text-xs uppercase tracking-wide text-sky-200 mb-2">
+              Formulario de contacto
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">
+              Déjanos tus datos y un asesor te contacta
+            </h2>
+            <p className="text-sm md:text-base text-sky-100 mb-4">
+              Si prefieres, también puedes llenar este formulario y un experto te
+              escribirá por WhatsApp o correo para resolver dudas y ayudarte a
+              contratar tu sistema de agua purificada.
+            </p>
+            <ul className="text-sm space-y-1 text-sky-100/90">
+              <li>• Respuesta en horario laboral.</li>
+              <li>• Solo usamos tus datos para contactarte por este servicio.</li>
+              <li>• Puedes continuar el proceso por teléfono, WhatsApp o chat.</li>
+            </ul>
+          </div>
+
+          {/* Formulario */}
+          <div className="bg-sky-950/60 border border-sky-700 rounded-2xl p-5 shadow-lg">
+            <form
+              action="/api/contact"
+              method="POST"
+              className="space-y-4 text-sm"
+            >
+              <div>
+                <label
+                  htmlFor="nombre"
+                  className="block text-xs font-semibold mb-1 text-sky-100"
+                >
+                  Nombre completo
+                </label>
+                <input
+                  id="nombre"
+                  name="name"
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  placeholder="Ej. Juan Pérez"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-semibold mb-1 text-sky-100"
+                >
+                  Correo electrónico
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  placeholder="tucorreo@ejemplo.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="whatsapp"
+                    className="block text-xs font-semibold mb-1 text-sky-100"
+                  >
+                    Número de WhatsApp
+                  </label>
+                  <input
+                    id="whatsapp"
+                    name="whatsapp"
+                    type="tel"
+                    required
+                    className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    placeholder="Ej. 8112345678"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="cp"
+                    className="block text-xs font-semibold mb-1 text-sky-100"
+                  >
+                    Código Postal
+                  </label>
+                  <input
+                    id="cp"
+                    name="postalCode"
+                    type="text"
+                    required
+                    maxLength={5}
+                    className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    placeholder="Ej. 64000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="mensaje"
+                  className="block text-xs font-semibold mb-1 text-sky-100"
+                >
+                  Comentarios (opcional)
+                </label>
+                <textarea
+                  id="mensaje"
+                  name="message"
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  placeholder="Cuéntanos si tienes alguna duda específica o cuándo prefieres que te contactemos."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-cyan-400 text-slate-900 font-semibold text-sm hover:bg-cyan-300 transition"
+              >
+                Enviar mis datos
+              </button>
+
+              <p className="text-[11px] text-sky-300 mt-1">
+                Al enviar este formulario aceptas ser contactado sobre el servicio de
+                agua purificada. Puedes solicitar que eliminemos tus datos cuando lo
+                desees.
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
 
       {/* PROCESO DE CONTRATACIÓN */}
       <section
