@@ -222,10 +222,10 @@ export default function HomePage() {
               <div className="flex flex-wrap items-baseline gap-4 mb-4">
                 <div>
                   <p className="text-xs text-slate-400 line-through">
-                    Precio regular: $369 MXN/mes
+                    Precio regular: $490 MXN/mes
                   </p>
                   <p className="text-3xl font-extrabold text-slate-900 leading-none">
-                    $239.<span className="text-xl align-top">85</span>
+                    $390.<span className="text-xl align-top">00</span>
                     <span className="text-xs font-normal ml-1 text-slate-500">
                       MXN/mes
                     </span>
