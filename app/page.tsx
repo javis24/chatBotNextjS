@@ -1,586 +1,405 @@
 // app/page.jsx
 import ChatWidget from "./components/ChatWidget";
+import { Droplets, Phone, MapPin, ShieldCheck, Zap, Clock, PenTool, CheckCircle2 } from "lucide-react";
+
+
+interface SocialLinkProps {
+  href: string;
+  path: React.ReactNode; 
+  viewBox?: string;     
+}
+
+// 2. Modifica el componente para usar la interfaz
+const SocialLink = ({ href, path, viewBox = "0 0 24 24" }: SocialLinkProps) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:bg-white hover:text-sky-600 transition-all duration-300"
+  >
+    <svg className="w-4 h-4 fill-current" viewBox={viewBox} xmlns="http://www.w3.org/2000/svg">
+      {path}
+    </svg>
+  </a>
+);
+
+// Paths de los iconos de redes sociales
+const socialPaths = {
+  facebook: <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />,
+  instagram: <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />,
+  pinterest: <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.173 0 7.41 2.967 7.41 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.62 0 12.017 0z" />,
+  tiktok: <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.16c0 2.52-1.12 4.84-2.98 6.38-2.26 1.88-5.43 2.5-8.31 1.67-2.61-.75-4.66-2.91-5.35-5.54-.53-2.02-.18-4.17.89-6 1.07-1.83 2.91-3.14 5.02-3.56.61-.12 1.23-.17 1.85-.17v4.2c-1.13.02-2.19.46-2.95 1.27-1.07 1.14-1.23 2.93-.41 4.27.69 1.13 1.94 1.86 3.28 1.91 1.12.04 2.21-.4 3.03-1.23.82-.84 1.23-1.99 1.14-3.16V.02z" />,
+  x: <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+};
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* HERO */}
-      <header className="bg-gradient-to-br from-sky-700 via-sky-600 to-cyan-500 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold">
-              💧
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide opacity-80">
-                YA NO CARGUES MAS GARRAFONES EN TU CASA 
-              </p>
-              <h1 className="text-lg font-semibold">Servicio de Filtros Monterrey & La Laguna</h1>
-            </div>
-          </div>
-          <div className="hidden sm:flex flex-col items-end text-sm">
-            <span className="opacity-80">Atención a clientes</span>
-            <a
-              href="tel:0000000000"
-              className="font-semibold hover:underline"
-            >
-              000 000 0000
-            </a>
-          </div>
-        </div>
+    <main className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-cyan-200 selection:text-cyan-900">
+      
+      {/* BACKGROUND PATTERN (ABSTRACT WATER) */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sky-200 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-30"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-200 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 opacity-30"></div>
+      </div>
 
-        <div className="max-w-6xl mx-auto px-4 pb-12 pt-6 grid md:grid-cols-2 gap-8 items-center">
-          {/* Texto principal */}
-          <div>
-            <p className="inline-block px-3 py-1 mb-4 text-xs font-semibold rounded-full bg-white/15">
-             YA NO CARGUES MAS GARRAFONES EN TU CASA 
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight mb-4">
-              Purificamos el agua para beber {" "}
-              <span className="text-cyan-200">agua purificada</span> en tu hogar.
-            </h2>
-            <p className="text-sm md:text-base text-sky-100 mb-6">
-              Servicio de purificación de agua por osmosis inversa bajo tarja, con mantenimiento incluido y técnicos profesionales. {" "} 
-              <strong>Monterrey</strong> y la <strong>Comarca Lagunera</strong>.
-            </p>
-
-            {/* Plan y promo */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/20">
-              <p className="text-xs uppercase tracking-wide mb-1 opacity-80">
-                PLAN RESTON WATER 2.0
-              </p>
-              <h3 className="font-semibold text-lg mb-2">
-                Sistema de Ósmosis inversa Reston Water 2.0
-              </h3>
-              <div className="flex flex-wrap items-baseline gap-3 mb-2">
-                <div>
-                  <p className="text-xs opacity-80 line-through">
-                    Antes: $490 MXN/mes
-                  </p>
-                  <p className="text-3xl font-extrabold leading-none">
-                    $390.
-                    <span className="text-xs font-normal ml-1">MXN/mes</span>
-                  </p>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-400/90 text-xs font-semibold text-slate-900">
-                  INSTALACIÓN SIN COSTO, mantenimiento programado y servicio técnico permanente.
-                </span>
+      <div className="relative z-10 flex flex-col min-h-screen">
+        
+        {/* HERO SECTION */}
+        <header className="relative bg-gradient-to-br from-sky-900 via-sky-700 to-cyan-600 text-white overflow-hidden">
+          {/* Abstract texture overlay */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+          
+          <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between relative z-20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-sky-200 shadow-lg">
+                <Droplets size={24} strokeWidth={2.5} />
               </div>
-              <p className="text-xs md:text-sm text-sky-50">
-                Incluye instalación, mantenimiento programado, servicio técnico permanente,
-                sin costo de visita y <strong>sin plazos forzosos</strong>.
-              </p>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-200 font-bold">
+                  Reston Water
+                </p>
+                <h1 className="text-lg font-bold tracking-tight">Filtros MTY & Laguna</h1>
+              </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="hidden sm:flex flex-col items-end text-sm">
+              <span className="text-sky-200 text-xs font-medium uppercase tracking-wide">Línea directa</span>
               <a
-                href="#como-funciona"
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-white text-sky-700 text-sm font-semibold shadow-sm hover:bg-slate-100 transition"
+                href="tel:0000000000"
+                className="flex items-center gap-2 font-bold hover:text-cyan-300 transition-colors"
               >
-                Ver cómo funciona el servicio
+                <Phone size={16} />
+                000 000 0000
               </a>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-white/70 text-sm font-semibold hover:bg-white/10 transition"
-              >
-                Iniciar chat en la burbuja 💬
-              </button>
-            </div>
-
-            <p className="mt-3 text-[11px] text-sky-100">
-              Usa la burbuja de chat en la esquina inferior derecha para hablar con el
-              asistente virtual, validar tu Código Postal y comenzar tu contratación.
-            </p>
-          </div>
-
-          {/* Card lateral: beneficios rápidos */}
-          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-5 md:p-6 border border-white/20 shadow-xl">
-            <h3 className="text-sm font-semibold mb-3">Beneficios principales</h3>
-            <ul className="space-y-3 text-xs md:text-sm">
-              <li className="flex gap-2">
-                <span className="mt-0.5">✅</span>
-                <span>
-                  <strong>Elimina hasta el 99.99% de virus y bacterias</strong> y reduce
-                  metales pesados, sales y cloro.
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-0.5">✅</span>
-                <span>
-                  <strong>Ya no compres garrafones: </strong> agua purificada directa del grifo, al instante y las 24 horas.
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-0.5">✅</span>
-                <span>
-                  <strong>Gasta menos:</strong> un pago minimo mensual fijo.
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-0.5">✅</span>
-                <span>
-                  <strong>Servicio:</strong> Instalación sin costo y mantenimiento sin costo extra
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-0.5">📍</span>
-                <span>
-                  Coberturas: Zonas Metropolitanas <strong>Monterrey</strong> y <strong>La Laguna</strong>.
-                  El asistente validará tu Código Postal.
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </header>
-
-      {/* CÓMO FUNCIONA */}
-      <section
-        id="como-funciona"
-        className="py-10 md:py-14 bg-white border-b border-slate-100"
-      >
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            ¿Cómo funciona el servicio?
-          </h2>
-          <p className="text-sm md:text-base text-slate-600 mb-6 max-w-3xl">
-            Es un servicio en modalidad de renta mensual, pensado para que tengas agua
-            purificada de alta calidad sin preocuparte por mantenimientos, refacciones ni
-            visitas técnicas adicionales.
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-sky-700 mb-1">
-                Paso 1 · Validamos tu domicilio
-              </p>
-              <h3 className="font-semibold mb-2">Código Postal y requisitos</h3>
-              <p className="text-xs md:text-sm text-slate-600">
-                El asistente virtual te pedirá tu Código Postal para confirmar la cobertura,
-                y verificará que cuentes con toma de agua fría visible, desagüe cercano y
-                una conexión eléctrica próxima al área de instalación.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-sky-700 mb-1">
-                Paso 2 · Instalación del equipo
-              </p>
-              <h3 className="font-semibold mb-2">Ósmosis inversa bajo tarja</h3>
-              <p className="text-xs md:text-sm text-slate-600">
-                Un técnico especializado instala el purificador bajo tu tarja. El sistema
-                trabaja con varias etapas de filtración para ofrecerte agua limpia, clara y
-                con mejor sabor directamente en tu cocina.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-sky-700 mb-1">
-                Paso 3 · Mantenimiento y soporte
-              </p>
-              <h3 className="font-semibold mb-2">Servicio técnico permanente</h3>
-              <p className="text-xs md:text-sm text-slate-600">
-                Los cartuchos se cambian de forma programada y, si llegara a presentarse
-                alguna fuga o falla, un técnico acude sin costo adicional mientras mantengas
-                activo tu servicio mensual.
-              </p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* PLANES Y COSTOS */}
-      <section
-        id="planes"
-        className="py-10 md:py-14 bg-slate-50 border-b border-slate-100"
-      >
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            Plan de renta del purificador
-          </h2>
-          <p className="text-sm md:text-base text-slate-600 mb-6 max-w-3xl">
-            Un solo plan pensado para la mayoría de los hogares, con todo incluido:
-            equipo, instalación, mantenimiento y servicio técnico.
-          </p>
-
-          <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-stretch">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-sky-700">
-                    Ósmosis Inversa Smart S2-600
-                  </p>
-                  <h3 className="text-lg font-semibold">
-                    Plan residencial bajo tarja
-                  </h3>
-                </div>
-                <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-100">
-                  Recomendado
+          <div className="max-w-7xl mx-auto px-4 py-16 lg:py-24 grid md:grid-cols-2 gap-12 items-center relative z-20">
+            {/* Texto principal */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-cyan-100 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                 </span>
+                YA NO CARGUES MÁS GARRAFONES
               </div>
+              
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+                Agua purificada <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 to-white">
+                  directo en tu grifo.
+                </span>
+              </h2>
+              
+              <p className="text-lg text-sky-100 max-w-lg leading-relaxed">
+                Sistema de ósmosis inversa bajo tarja con <strong>todo incluido</strong>. 
+                Olvídate de comprar, cargar y almacenar plásticos. Servicio premium en Monterrey y La Laguna.
+              </p>
 
-              <div className="flex flex-wrap items-baseline gap-4 mb-4">
-                <div>
-                  <p className="text-xs text-slate-400 line-through">
-                    Precio regular: $490 MXN/mes
-                  </p>
-                  <p className="text-3xl font-extrabold text-slate-900 leading-none">
-                    $390.<span className="text-xl align-top">00</span>
-                    <span className="text-xs font-normal ml-1 text-slate-500">
-                      MXN/mes
-                    </span>
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Promoción aplicable a los primeros 8 meses de servicio.
-                  </p>
-                </div>
-                <div className="text-xs text-slate-600">
-                  <p>✔ Sin costo de instalación</p>
-                  <p>✔ Sin plazos forzosos</p>
-                  <p>✔ Cargo recurrente a tarjeta</p>
-                </div>
-              </div>
-
-              <ul className="grid sm:grid-cols-2 gap-3 text-xs md:text-sm text-slate-700 mb-5">
-                <li className="flex gap-2">
-                  <span className="mt-0.5">💧</span>
-                  <span>
-                    Agua purificada al instante para beber y cocinar, las 24 horas del día.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-0.5">🛠️</span>
-                  <span>
-                    Mantenimiento programado con cambio de cartuchos a 12 y 24 meses.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-0.5">🧪</span>
-                  <span>
-                    Tecnología de 4–5 etapas de filtración que mejora sabor, olor y color del
-                    agua.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-0.5">♻️</span>
-                  <span>
-                    Reduces uso de plásticos desechables y el constante movimiento de
-                    garrafones.
-                  </span>
-                </li>
-              </ul>
-
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a
                   href="#contratacion"
-                  className="inline-flex justify-center items-center px-5 py-2.5 rounded-full bg-sky-700 text-white text-sm font-semibold hover:bg-sky-800 transition"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white text-sky-700 text-sm font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-1 transition-all duration-300"
                 >
-                  Quiero contratar el servicio
+                  Contratar ahora
                 </a>
-                <p className="text-[11px] text-slate-500">
-                  También puedes iniciar el proceso desde la burbuja de chat en la parte
-                  inferior derecha.
+                <a
+                  href="#como-funciona"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-sky-800/50 backdrop-blur-sm border border-white/30 text-white text-sm font-bold hover:bg-sky-700/50 transition-all duration-300"
+                >
+                  Ver funcionamiento
+                </a>
+              </div>
+            </div>
+
+            {/* Plan Card - Glassmorphism Highlight */}
+            <div className="relative group">
+              {/* Glow effect behind card */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+              
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/20 shadow-2xl text-white">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-cyan-300 font-bold mb-1">
+                      PLAN RESTON WATER 2.0
+                    </p>
+                    <h3 className="font-bold text-xl sm:text-2xl">
+                      Todo incluido
+                    </h3>
+                  </div>
+                  <div className="bg-gradient-to-r from-emerald-400 to-teal-500 p-2 rounded-lg shadow-lg">
+                    <ShieldCheck size={24} className="text-white" />
+                  </div>
+                </div>
+
+                <div className="mb-6 space-y-1">
+                   <p className="text-sm text-sky-200 line-through decoration-sky-200/50">
+                     Precio regular: $490 MXN
+                   </p>
+                   <div className="flex items-baseline gap-1">
+                     <span className="text-5xl font-extrabold tracking-tight text-white">$390</span>
+                     <span className="text-lg text-sky-100 font-medium">/mes</span>
+                   </div>
+                   <p className="text-xs text-cyan-200 font-medium">Precio promocional 2024</p>
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center gap-3 text-sm text-sky-50">
+                    <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-300">
+                       <CheckCircle2 size={14} />
+                    </div>
+                    <span>Instalación <strong>sin costo</strong></span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-sky-50">
+                    <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-300">
+                       <CheckCircle2 size={14} />
+                    </div>
+                    <span>Mantenimiento y filtros incluidos</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-sky-50">
+                    <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-300">
+                       <CheckCircle2 size={14} />
+                    </div>
+                    <span>Sin plazos forzosos</span>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-center text-sky-200/80 border-t border-white/10 pt-4">
+                  Valida tu código postal en el chat para comenzar.
                 </p>
               </div>
             </div>
+          </div>
 
-            <div
-              id="cobertura"
-              className="bg-sky-900 text-sky-50 rounded-3xl p-6 flex flex-col justify-between"
-            >
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Cobertura actual</h3>
-                <p className="text-sm text-sky-100 mb-4">
-                  Nuestro equipo atiende actualmente estas zonas:
+          {/* Wave Divider SVG */}
+          <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20">
+            <svg className="relative block w-full h-[60px] md:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#f8fafc"></path>
+            </svg>
+          </div>
+        </header>
+
+        {/* CÓMO FUNCIONA */}
+        <section id="como-funciona" className="py-20 bg-slate-50 relative">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+                Tecnología simple, agua perfecta
+              </h2>
+              <p className="text-slate-600 text-lg">
+                Simplificamos la forma en que bebes agua. Sin contratos complicados ni letras chiquitas.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Step 1 */}
+              <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                <div className="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mb-6 group-hover:bg-sky-600 group-hover:text-white transition-colors duration-300">
+                  <MapPin size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-slate-800">1. Validación</h3>
+                <p className="text-slate-500 leading-relaxed">
+                  Verificamos tu cobertura y requisitos técnicos (toma de agua y luz) mediante nuestro asistente virtual.
                 </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex gap-2">
-                    <span>📍</span>
-                    <span>
-                      <strong>Monterrey y área metropolitana</strong>
-                    </span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span>📍</span>
-                    <span>
-                      <strong>Comarca Lagunera</strong> (Torreón, Gómez Palacio,
-                      Lerdo y alrededores).
-                    </span>
-                  </li>
-                </ul>
               </div>
-              <p className="mt-4 text-[11px] text-sky-200">
-                En el chat se te pedirá tu Código Postal para validar cobertura y fechas
-                disponibles de instalación.
-              </p>
+
+              {/* Step 2 */}
+              <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-cyan-100 to-transparent rounded-bl-full opacity-50"></div>
+                <div className="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-6 group-hover:bg-cyan-500 group-hover:text-white transition-colors duration-300 relative z-10">
+                  <PenTool size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-slate-800 relative z-10">2. Instalación Pro</h3>
+                <p className="text-slate-500 leading-relaxed relative z-10">
+                  Un técnico experto instala el sistema de ósmosis inversa bajo tu tarja. Estético, silencioso y oculto.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                  <Zap size={28} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-slate-800">3. Soporte Total</h3>
+                <p className="text-slate-500 leading-relaxed">
+                  Disfruta. Nosotros agendamos los mantenimientos y reparamos cualquier falla sin costo extra.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-            {/* FORMULARIO DE CONTACTO RÁPIDO */}
-      <section
-        id="contacto"
-        className="py-10 md:py-14 bg-sky-900 text-sky-50 border-t border-slate-200"
-      >
-        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-[1.3fr_1fr] gap-8 items-start">
-          {/* Texto lateral */}
-          <div>
-            <p className="text-xs uppercase tracking-wide text-sky-200 mb-2">
-              Formulario de contacto
-            </p>
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">
-              Déjanos tus datos y un asesor te contacta
-            </h2>
-            <p className="text-sm md:text-base text-sky-100 mb-4">
-              Si prefieres, también puedes llenar este formulario y un experto te
-              escribirá por WhatsApp o correo para resolver dudas y ayudarte a
-              contratar tu sistema de agua purificada.
-            </p>
-            <ul className="text-sm space-y-1 text-sky-100/90">
-              <li>• Respuesta en horario laboral.</li>
-              <li>• Solo usamos tus datos para contactarte por este servicio.</li>
-              <li>• Puedes continuar el proceso por teléfono, WhatsApp o chat.</li>
-            </ul>
-          </div>
+        </section>
 
-          {/* Formulario */}
-          <div className="bg-sky-950/60 border border-sky-700 rounded-2xl p-5 shadow-lg">
-            <form
-              action="/api/contact"
-              method="POST"
-              className="space-y-4 text-sm"
-            >
-              <div>
-                <label
-                  htmlFor="nombre"
-                  className="block text-xs font-semibold mb-1 text-sky-100"
-                >
-                  Nombre completo
-                </label>
-                <input
-                  id="nombre"
-                  name="name"
-                  type="text"
-                  required
-                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                  placeholder="Ej. Juan Pérez"
-                />
+        {/* BENEFICIOS / COBERTURA SPLIT */}
+        <section className="py-20 bg-white border-y border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Image Placeholder / Abstract Graphic */}
+            <div className="relative order-2 lg:order-1">
+              {/* Si tuvieras imagen iría aquí. Como no hay, usamos un diseño abstracto CSS */}
+              <div className="aspect-square rounded-3xl overflow-hidden bg-gradient-to-tr from-sky-100 to-cyan-50 relative p-8 flex items-center justify-center">
+                 <div className="absolute inset-0 bg-[radial-gradient(#e0f2fe_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
+                 
+                 {/* Círculos decorativos simulando pureza */}
+                 <div className="absolute w-64 h-64 bg-sky-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+                 
+                 <div className="relative z-10 bg-white/60 backdrop-blur-md p-8 rounded-2xl border border-white shadow-xl max-w-sm w-full">
+                    <h4 className="font-bold text-sky-900 mb-4 flex items-center gap-2">
+                      <ShieldCheck className="text-cyan-500"/> Calidad Certificada
+                    </h4>
+                    <ul className="space-y-3">
+                      <li className="flex items-center gap-3 text-sm text-slate-600">
+                        <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">99%</span>
+                        <span>Libre de virus y bacterias</span>
+                      </li>
+                      <li className="flex items-center gap-3 text-sm text-slate-600">
+                        <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">pH</span>
+                        <span>Sabor neutro y ligero</span>
+                      </li>
+                      <li className="flex items-center gap-3 text-sm text-slate-600">
+                        <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">24h</span>
+                        <span>Disponibilidad inmediata</span>
+                      </li>
+                    </ul>
+                 </div>
               </div>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-semibold mb-1 text-sky-100"
-                >
-                  Correo electrónico
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                  placeholder="tucorreo@ejemplo.com"
-                />
-              </div>
+            <div className="order-1 lg:order-2">
+              <span className="text-cyan-600 font-bold tracking-wider uppercase text-xs mb-2 block">
+                Cobertura Regional
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                Servicio exclusivo para Monterrey y La Laguna
+              </h2>
+              <p className="text-slate-600 mb-8 text-lg">
+                Nuestra infraestructura está optimizada para atender rápidamente en estas zonas metropolitanas. Tiempos de respuesta récord.
+              </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="whatsapp"
-                    className="block text-xs font-semibold mb-1 text-sky-100"
-                  >
-                    Número de WhatsApp
-                  </label>
-                  <input
-                    id="whatsapp"
-                    name="whatsapp"
-                    type="tel"
-                    required
-                    className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    placeholder="Ej. 8112345678"
-                  />
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start p-4 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-100">
+                  <div className="p-2 bg-sky-100 text-sky-700 rounded-lg">
+                    <MapPin size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Monterrey (Área Metro)</h4>
+                    <p className="text-sm text-slate-500">San Pedro, Santa Catarina, San Nicolás, Apodaca, Guadalupe.</p>
+                  </div>
                 </div>
-
-                <div>
-                  <label
-                    htmlFor="cp"
-                    className="block text-xs font-semibold mb-1 text-sky-100"
-                  >
-                    Código Postal
-                  </label>
-                  <input
-                    id="cp"
-                    name="postalCode"
-                    type="text"
-                    required
-                    maxLength={5}
-                    className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    placeholder="Ej. 64000"
-                  />
+                <div className="flex gap-4 items-start p-4 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-100">
+                  <div className="p-2 bg-sky-100 text-sky-700 rounded-lg">
+                    <MapPin size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Comarca Lagunera</h4>
+                    <p className="text-sm text-slate-500">Torreón, Gómez Palacio, Lerdo y zonas conurbadas.</p>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div>
-                <label
-                  htmlFor="mensaje"
-                  className="block text-xs font-semibold mb-1 text-sky-100"
-                >
-                  Comentarios (opcional)
-                </label>
-                <textarea
-                  id="mensaje"
-                  name="message"
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-lg bg-sky-900/60 border border-sky-700 text-sky-50 placeholder-sky-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                  placeholder="Cuéntanos si tienes alguna duda específica o cuándo prefieres que te contactemos."
-                />
+        {/* FORMULARIO DE CONTACTO (Estilizado oscuro) */}
+        <section id="contacto" className="py-20 bg-slate-900 text-slate-50 relative overflow-hidden">
+           {/* Decoración de fondo */}
+           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-sky-900/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+           
+           <div className="max-w-4xl mx-auto px-4 relative z-10">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold mb-4">¿Listo para dejar los garrafones?</h2>
+                <p className="text-slate-400">Déjanos tus datos y un asesor te contactará hoy mismo.</p>
               </div>
 
-              <button
-                type="submit"
-                className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-cyan-400 text-slate-900 font-semibold text-sm hover:bg-cyan-300 transition"
-              >
-                Enviar mis datos
-              </button>
+              <div className="bg-slate-800/50 backdrop-blur-md border border-slate-700 p-8 rounded-3xl shadow-2xl">
+                 <form action="/api/contact" method="POST" className="grid gap-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="nombre" className="text-xs font-bold uppercase tracking-wide text-slate-400">Nombre</label>
+                        <input id="nombre" name="name" type="text" required placeholder="Tu nombre completo"
+                          className="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="whatsapp" className="text-xs font-bold uppercase tracking-wide text-slate-400">WhatsApp</label>
+                        <input id="whatsapp" name="whatsapp" type="tel" required placeholder="10 dígitos"
+                          className="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                        <label htmlFor="email" className="text-xs font-bold uppercase tracking-wide text-slate-400">Correo</label>
+                        <input id="email" name="email" type="email" required placeholder="ejemplo@correo.com"
+                          className="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="cp" className="text-xs font-bold uppercase tracking-wide text-slate-400">Código Postal</label>
+                        <input id="cp" name="postalCode" type="text" maxLength={5} required placeholder="Para validar cobertura"
+                          className="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition" />
+                      </div>
+                    </div>
 
-              <p className="text-[11px] text-sky-300 mt-1">
-                Al enviar este formulario aceptas ser contactado sobre el servicio de
-                agua purificada. Puedes solicitar que eliminemos tus datos cuando lo
-                desees.
-              </p>
-            </form>
-          </div>
-        </div>
-      </section>
+                    <button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-sky-600 text-white font-bold text-lg py-4 rounded-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all duration-300 mt-2">
+                      Solicitar Información
+                    </button>
+                 </form>
+              </div>
+           </div>
+        </section>
 
+        {/* FOOTER PRO */}
+        <footer className="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-12 mb-12">
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex items-center gap-2 mb-4 text-white">
+                  <Droplets className="text-cyan-500" />
+                  <span className="font-bold text-xl">Reston Water</span>
+                </div>
+                <p className="text-sm max-w-xs mb-6">
+                  Revolucionando la forma de beber agua en el norte de México. Tecnología, servicio y sustentabilidad.
+                </p>
+                <p className="text-xs">© {new Date().getFullYear()} Todos los derechos reservados.</p>
+              </div>
 
-      {/* PROCESO DE CONTRATACIÓN */}
-      <section
-        id="contratacion"
-        className="py-10 md:py-14 bg-white border-b border-slate-100"
-      >
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            Proceso de contratación sencillo
-          </h2>
-          <p className="text-sm md:text-base text-slate-600 mb-6 max-w-3xl">
-            El asistente virtual te pedirá los datos paso a paso y un experto te
-            acompañará para finalizar el pago y agendar la instalación.
-          </p>
+              {/* REDES SOCIALES - LAGUNA */}
+              <div>
+                <h4 className="text-white font-bold mb-4 border-b border-slate-800 pb-2 inline-block">La Laguna</h4>
+                <div className="flex flex-wrap gap-3">
+                  <SocialLink href="#" path={socialPaths.facebook} />
+                  <SocialLink href="#" path={socialPaths.instagram} />
+                  <SocialLink href="#" path={socialPaths.pinterest} />
+                  <SocialLink href="#" path={socialPaths.tiktok} />
+                  <SocialLink href="#" path={socialPaths.x} />
+                </div>
+                <p className="text-xs mt-3 text-slate-600">Torreón, Gómez, Lerdo.</p>
+              </div>
 
-          <div className="grid md:grid-cols-4 gap-4 text-xs md:text-sm">
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <p className="text-xs font-semibold text-sky-700 mb-1">1. Chat inicial</p>
-              <p>
-                Inicias conversación en la burbuja de chat, compartes tu Código Postal y
-                resuelves dudas básicas del servicio.
-              </p>
+              {/* REDES SOCIALES - MONTERREY */}
+              <div>
+                <h4 className="text-white font-bold mb-4 border-b border-slate-800 pb-2 inline-block">Monterrey</h4>
+                <div className="flex flex-wrap gap-3">
+                  <SocialLink href="https://www.instagram.com/restonwatermonterrey/" path={socialPaths.instagram} />
+                  <SocialLink href="https://www.facebook.com/profile.php?id=61584075853064" path={socialPaths.facebook} />
+                  <SocialLink href="https://pin.it/2BPxygNL8" path={socialPaths.pinterest} />
+                  <SocialLink href="https://www.tiktok.com/@reston.water.mont?is_from_webapp=1&sender_device=pc" path={socialPaths.tiktok} />
+                  <SocialLink href="https://x.com/RestonWaterMty" path={socialPaths.x} />
+                </div>
+                <p className="text-xs mt-3 text-slate-600">Área Metropolitana.</p>
+              </div>
             </div>
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <p className="text-xs font-semibold text-sky-700 mb-1">2. Datos del titular</p>
-              <p>
-                El asistente te pedirá tu nombre, correo, teléfonos y domicilio completo
-                para la instalación.
-              </p>
-            </div>
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <p className="text-xs font-semibold text-sky-700 mb-1">
-                3. Enlace de pago seguro
-              </p>
-              <p>
-                Un experto se comunica contigo para enviarte un enlace donde capturas los
-                datos de tu tarjeta y se realiza el primer cargo.
-              </p>
-            </div>
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <p className="text-xs font-semibold text-sky-700 mb-1">
-                4. Agenda de instalación
-              </p>
-              <p>
-                Una vez confirmado el pago, se agenda la visita del técnico. La instalación
-                suele programarse entre 3 y 5 días hábiles.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ resumido */}
-      <section
-        id="faq"
-        className="py-10 md:py-14 bg-slate-50"
-      >
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            Preguntas frecuentes
-          </h2>
-          <p className="text-sm md:text-base text-slate-600 mb-6 max-w-3xl">
-            Algunas de las dudas más comunes sobre el servicio de agua purificada.
-            Puedes preguntar más detalles directamente en el chat.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-6 text-xs md:text-sm">
-            <div className="bg-white rounded-2xl p-4 border border-slate-100">
-              <h3 className="font-semibold mb-2">
-                ¿Por qué es mejor que el agua de garrafón?
-              </h3>
-              <p className="text-slate-600">
-                El sistema se conecta directamente a tu suministro y purifica el agua con
-                varias etapas de filtración, ofreciendo una calidad constante, sin cargar
-                garrafones, reduciendo plásticos y con un costo mensual más predecible.
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 border border-slate-100">
-              <h3 className="font-semibold mb-2">
-                ¿Cómo se realiza el pago del servicio?
-              </h3>
-              <p className="text-slate-600">
-                El pago se realiza mediante cargo recurrente a una tarjeta de crédito o
-                débito. El enlace de pago se envía por un medio seguro para que tú mismo
-                captures tus datos bancarios.
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 border border-slate-100">
-              <h3 className="font-semibold mb-2">
-                ¿Qué pasa si tengo una falla o fuga?
-              </h3>
-              <p className="text-slate-600">
-                Cuentas con servicio técnico permanente mientras mantengas activo tu
-                servicio mensual. Un técnico acudirá a revisar el equipo sin costo extra.
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl p-4 border border-slate-100">
-              <h3 className="font-semibold mb-2">
-                ¿Puedo cancelar el servicio?
-              </h3>
-              <p className="text-slate-600">
-                Sí. El servicio no tiene plazos forzosos. Puedes cancelar bajo los términos
-                y condiciones vigentes y dejar de realizar los pagos mensuales.
-              </p>
+            
+            <div className="text-center pt-8 border-t border-slate-900 text-xs text-slate-600 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p>Desarrollado con altos estándares de calidad.</p>
+              <div className="flex gap-4">
+                <a href="#" className="hover:text-slate-300 transition">Aviso de Privacidad</a>
+                <a href="#" className="hover:text-slate-300 transition">Términos y Condiciones</a>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </footer>
 
-      {/* Footer simple */}
-      <footer className="border-t border-slate-200 py-4 text-center text-[11px] text-slate-500">
-        <p>
-          © {new Date().getFullYear()} Servicio de Filtros Monterrey & La Laguna.{" "}
-          <a
-            href="https://tusitio.com/aviso-de-privacidad"
-            className="underline hover:text-slate-700"
-          >
-            Aviso de privacidad
-          </a>
-        </p>
-        <p className="mt-1">
-          Usa la burbuja de chat 💬 en la esquina inferior derecha para iniciar tu contratación.
-        </p>
-      </footer>
-
-      {/* BURBUJA DEL CHATBOT */}
-      <ChatWidget />
+        <ChatWidget />
+      </div>
     </main>
   );
 }
